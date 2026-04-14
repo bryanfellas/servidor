@@ -6,6 +6,7 @@ const fs = require("fs");
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 const pastaVideos = path.join(__dirname, "videos");
 if (!fs.existsSync(pastaVideos)) {
@@ -35,6 +36,15 @@ app.delete("/deletar/:nome", (req, res) => {
   }
   fs.unlinkSync(caminho);
   res.json({ mensagem: "Vídeo deletado!" });
+});
+
+app.post("/verificar-senha", (req, res) => {
+  const { senha } = req.body;
+  if (senha === process.env.SENHA_SECRETA) {
+    res.json({ ok: true });
+  } else {
+    res.status(401).json({ ok: false });
+  }
 });
 
 app.use("/videos", express.static(pastaVideos));

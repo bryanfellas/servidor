@@ -16,7 +16,6 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, pastaVideos),
   filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname)
 });
-
 const upload = multer({ storage });
 
 app.post("/upload", upload.single("video"), (req, res) => {
@@ -26,6 +25,16 @@ app.post("/upload", upload.single("video"), (req, res) => {
 app.get("/listar-videos", (req, res) => {
   const arquivos = fs.readdirSync(pastaVideos);
   res.json(arquivos);
+});
+
+app.delete("/deletar/:nome", (req, res) => {
+  const nome = req.params.nome;
+  const caminho = path.join(pastaVideos, nome);
+  if (!fs.existsSync(caminho)) {
+    return res.status(404).json({ erro: "Arquivo não encontrado" });
+  }
+  fs.unlinkSync(caminho);
+  res.json({ mensagem: "Vídeo deletado!" });
 });
 
 app.use("/videos", express.static(pastaVideos));
